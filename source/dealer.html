@@ -203,6 +203,15 @@
             background: #e6f7ff;
         }
 
+        /* 固定“操作”列 */
+        th:last-child,
+        td:last-child {
+            position: sticky;
+            right: 0;
+            background-color: var(--white);
+            z-index: 1;
+        }
+
         .empty-row td {
             text-align: center;
             color: var(--text-light);
