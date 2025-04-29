@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>蔬菜溯源查询系统</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #1abc9c;
+            --primary-hover: #16a085;
+            --bg-light: #f0f5f5;
+            --bg-dark: #ffffff;
+            --section-bg: #fdfdfd;
+            --text-dark: #2c3e50;
+            --border-radius: 10px;
+            --spacing: 16px;
+            --transition: 0.3s;
+            --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 80px auto;
+            background: var(--bg-dark);
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            color: #fff;
+            text-align: center;
+            padding: calc(var(--spacing) * 1.5) 0;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            margin: calc(var(--spacing) * -1) calc(var(--spacing) * -1) var(--spacing) calc(var(--spacing) * -1);
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+        }
+
+        .search-box {
+            display: flex;
+            gap: var(--spacing);
+            margin-bottom: calc(var(--spacing) * 1.5);
+        }
+
+        .search-box input {
+            flex: 1;
+            padding: var(--spacing);
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            transition: border-color var(--transition), box-shadow var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 5px rgba(26, 188, 156, 0.4);
+        }
+
+        .search-box button {
+            padding: var(--spacing);
+            background: var(--primary-color);
+            border: none;
+            border-radius: var(--border-radius);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .search-box button:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+
+        .loading,
+        .not-found {
+            text-align: center;
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            display: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            width: 24px;
+            height: 24px;
+            border: 4px solid #ccc;
+            border-top-color: var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .not-found {
+            background: #ffe5e5;
+            color: #c0392b;
+            box-shadow: var(--shadow-light);
+        }
+
+        .result {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .section {
+            background: var(--section-bg);
+            padding: var(--spacing);
+            border-radius: var(--border-radius);
+            margin-top: var(--spacing);
+            box-shadow: var(--shadow-light);
+            transition: transform var(--transition), box-shadow var(--transition);
+        }
+
+        .section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: var(--spacing);
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section:nth-child(odd) {
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .section:nth-child(even) {
+            border-left: 4px solid var(--primary-hover);
+        }
+
+        .section .item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: calc(var(--spacing) / 2);
+            font-size: 0.95rem;
+        }
+
+        .item strong {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .item span {
+            flex: 1.2;
+            text-align: right;
+            word-break: break-all;
+        }
+
+        .back-login-btn {
+            position: absolute;
+            top: var(--spacing);
+            right: var(--spacing);
+            background: #fff;
+            color: var(--primary-color);
+            padding: 8px 12px;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .back-login-btn:hover {
+            background: var(--primary-color);
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <button class="back-login-btn" id="backBtn">返回登录</button>
+        <header>
+            <h1>蔬菜溯源查询</h1>
+        </header>
+        <div class="search-box">
+            <input type="text" id="traceCodeInput" placeholder="请输入溯源码（32位）">
+            <button id="queryBtn">查询</button>
+        </div>
+
+        <div class="loading" id="loading">查询中，请稍候</div>
+        <div class="not-found" id="notFound">未找到对应蔬菜信息！</div>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const inputEl = document.getElementById('traceCodeInput');
+        const loadingDiv = document.getElementById('loading');
+        const notFoundDiv = document.getElementById('notFound');
+        const resultDiv = document.getElementById('result');
+        const queryBtn = document.getElementById('queryBtn');
+        const backBtn = document.getElementById('backBtn');
+
+        backBtn.addEventListener('click', () => window.location.href = 'login.html');
+        queryBtn.addEventListener('click', searchPlant);
+        inputEl.addEventListener('keydown', e => e.key === 'Enter' && searchPlant());
+
+        async function searchPlant() {
+            const code = inputEl.value.trim();
+            if (code.length !== 32) {
+                alert('请输入有效的32位溯源码');
+                return;
+            }
+            hideAll();
+            loadingDiv.style.display = 'block';
+
+            await new Promise(r => setTimeout(r, 600));
+            loadingDiv.style.display = 'none';
+
+            const records = JSON.parse(localStorage.getItem('dealerRecords') || '[]');
+            const plant = records.find(r => r.traceCode === code);
+            if (!plant) {
+                notFoundDiv.style.display = 'block';
+                setTimeout(() => notFoundDiv.style.display = 'none', 3000);
+                return;
+            }
+
+            const sections = [];
+            sections.push(createSection('种植信息', '🧑‍🌾', [
+                { label: '蔬菜名称', value: plant.category },
+                { label: '商品规格', value: plant.spec },
+                { label: '商品单位', value: plant.unit },
+                { label: '保质期', value: plant.shelfLife },
+                { label: '商品说明', value: plant.description },
+                { label: '备注', value: plant.remark }
+            ]));
+            sections.push(createSection('包装信息', '📦', [
+                { label: '加工工厂', value: plant.factoryName },
+                { label: '质检人员', value: plant.inspector },
+                { label: '加工人员', value: plant.worker },
+                { label: '加工时间', value: plant.processTime }
+            ]));
+            sections.push(createSection('储运信息', '🚚', [
+                { label: '仓储地点', value: plant.storageLocation },
+                { label: '运输人', value: plant.driver },
+                { label: '出发地', value: plant.origin },
+                { label: '目的地', value: plant.destination },
+                { label: '出发时间', value: plant.departureTime },
+                { label: '到达时间', value: plant.arrivalTime }
+            ]));
+            sections.push(createSection('经销信息', '🏬', [
+                { label: '商场名称', value: plant.marketName },
+                { label: '商品价格', value: plant.price },
+                { label: '上架时间', value: plant.listingTime }
+            ]));
+
+            resultDiv.innerHTML = sections.join('');
+            resultDiv.style.display = 'block';
+            inputEl.value = '';
+            inputEl.blur();
+        }
+
+        function createSection(title, icon, fields) {
+            let html = `<div class="section"><h2>${icon} ${title}</h2>`;
+            for (const { label, value } of fields) {
+                html += `<div class="item"><strong>${label}：</strong><span>${value || '暂无'}</span></div>`;
+            }
+            html += `</div>`;
+            return html;
+        }
+
+        function hideAll() {
+            loadingDiv.style.display = 'none';
+            notFoundDiv.style.display = 'none';
+            resultDiv.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

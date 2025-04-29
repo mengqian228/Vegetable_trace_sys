@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>蔬菜溯源系统 登录</title>
+    <style>
+        /* 重置内外边距 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* 背景图覆盖全屏 */
+        body {
+            font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+            background: url('./蔬菜图片.jpg') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vh;
+        }
+
+        /* 半透明的登录面板 */
+        .login-panel {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            transform: translateY(-50%);
+            width: 320px;
+            padding: 30px;
+            background: rgba(255, 255, 255, 0.85);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-panel h1 {
+            font-size: 28px;
+            margin-bottom: 6px;
+            color: #333;
+        }
+
+        .login-panel .author {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* 角色切换标签 */
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+
+        .tabs .tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            margin-right: 5px;
+            cursor: pointer;
+            border-radius: 4px;
+            background: #f4f4f4;
+            color: #333;
+            font-size: 14px;
+            user-select: none;
+        }
+
+        .tabs .tab:last-child {
+            margin-right: 0;
+        }
+
+        .tabs .tab.active {
+            background: #3498db;
+            color: #fff;
+        }
+
+        /* 输入框和按钮 */
+        .login-panel input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .login-panel button,
+        .login-panel .trace-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .login-panel button {
+            background: #3498db;
+            color: #fff;
+        }
+
+        .login-panel button:hover {
+            background: #5dade2;
+        }
+
+        /* 新增：前往蔬菜溯源按钮样式 */
+        .login-panel .trace-btn {
+            background: #52c41a;
+            color: #fff;
+        }
+
+        .login-panel .trace-btn:hover {
+            background: #73d13d;
+        }
+
+        .login-panel .register {
+            display: block;
+            text-align: right;
+            font-size: 13px;
+            color: #3498db;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-panel">
+        <h1>蔬菜溯源系统</h1>
+        <div class="author">作者：物联网2201 赵泽坤</div>
+
+        <div class="tabs">
+            <div class="tab active" data-role="种植商">种植商</div>
+            <div class="tab" data-role="包装商">包装商</div>
+            <div class="tab" data-role="储运商">储运商</div>
+            <div class="tab" data-role="经销商">经销商</div>
+        </div>
+
+        <form id="loginForm">
+            <input type="text" id="login_username" placeholder="请输入账户" required />
+            <input type="password" id="login_password" placeholder="请输入密码" required />
+            <button type="submit">登录</button>
+        </form>
+
+        <!-- 新增：前往蔬菜溯源按钮 -->
+        <button type="button" class="trace-btn" onclick="window.location.href='search.html'">前往蔬菜溯源</button>
+
+        <a href="register.html" class="register">点击注册</a>
+    </div>
+
+    <script>
+        // 角色切换高亮
+        document.querySelectorAll('.tab').forEach(tab =>
+            tab.addEventListener('click', () => {
+                document.querySelector('.tab.active').classList.remove('active');
+                tab.classList.add('active');
+            })
+        );
+
+        // 登录逻辑
+        document.getElementById('loginForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const role = document.querySelector('.tab.active').dataset.role;
+            const username = document.getElementById('login_username').value.trim();
+            const password = document.getElementById('login_password').value;
+            // 从 localStorage 读取所有用户
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const user = users.find(u =>
+                u.username === username &&
+                u.password === password &&
+                u.role === role
+            );
+            if (user) {
+                // 保存当前登录用户信息
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                // 登录成功后根据角色跳转
+                let targetUrl = 'plant.html';
+                switch (role) {
+                    case '种植商':
+                        targetUrl = 'plant.html';
+                        break;
+                    case '包装商':
+                        targetUrl = 'packer.html';
+                        break;
+                    case '储运商':
+                        targetUrl = 'transporter.html';
+                        break;
+                    case '经销商':
+                        targetUrl = 'dealer.html';
+                        break;
+                }
+                window.location.href = targetUrl;
+            } else {
+                alert('用户名或密码错误');
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>蔬菜溯源系统 — 包装商界面</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #001529;
+            --light-bg: #f0f2f5;
+            --white: #fff;
+            --primary: #1890ff;
+            --hover: #40a9ff;
+            --text: #333;
+            --text-light: #8c8c8c;
+            --accent: #52c41a;
+            --danger: #fa541c;
+            --border-radius: 8px;
+            --spacing: 16px;
+            --transition: 0.3s;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 220px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: var(--dark-bg);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            padding: 0 var(--spacing);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .logo a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .breadcrumb a {
+            margin-left: var(--spacing);
+            color: var(--white);
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: opacity var(--transition);
+        }
+
+        .breadcrumb a:hover {
+            opacity: 1;
+        }
+
+        .user {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .user span {
+            margin-right: 8px;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            display: none;
+            overflow: hidden;
+            z-index: 200;
+        }
+
+        .user-dropdown li {
+            padding: 12px var(--spacing);
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: background var(--transition);
+            list-style: none;
+        }
+
+        .user-dropdown li:hover {
+            background: var(--light-bg);
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 56px);
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--white);
+            border-right: 1px solid #e8e8e8;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 56px;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            padding: 14px var(--spacing);
+            font-size: 0.95rem;
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background var(--transition), color var(--transition);
+        }
+
+        .sidebar li.active,
+        .sidebar li:hover {
+            background: var(--light-bg);
+            color: var(--primary);
+        }
+
+        .sidebar li.active::before {
+            content: '';
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .main {
+            flex: 1;
+            padding: calc(var(--spacing) * 2);
+            overflow-y: auto;
+        }
+
+        .main-title {
+            font-family: 'KaiTi', '楷体';
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: var(--spacing);
+            color: var(--text);
+        }
+
+        .table-wrapper {
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            /* 添加横向滚动条 */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 900px;
+            white-space: nowrap;
+            /* 防止换行 */
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+            border: 1px solid #f0f0f0;
+        }
+
+        th {
+            background: #fafafa;
+            color: var(--text-light);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafd;
+        }
+
+        tr:hover {
+            background: #e6f7ff;
+        }
+
+        .empty-row td {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 40px;
+        }
+
+        .edit-btn {
+            background: var(--accent);
+            border: none;
+            color: var(--white);
+            padding: 6px 12px;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .edit-btn:hover {
+            background: #389e0d;
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: calc(var(--spacing) * 2);
+            width: 450px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transform: scale(0.8);
+            transition: transform var(--transition);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing);
+            color: var(--accent);
+            text-align: center;
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: var(--spacing);
+            font-size: 0.9rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            transition: border-color var(--transition);
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            text-align: right;
+            margin-top: calc(var(--spacing) * 1.5);
+        }
+
+        .modal-actions button {
+            padding: 6px 14px;
+            margin-left: var(--spacing);
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: var(--text);
+        }
+
+        .btn-confirm {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-confirm:hover {
+            background: var(--hover);
+            transform: translateY(-1px);
+        }
+
+        /* 新增样式：允许蔬菜说明左右滑动 */
+        td.description {
+            max-width: 200px;
+            /* 适当限制宽度 */
+            overflow-x: auto;
+            /* 启用水平滚动条 */
+            white-space: nowrap;
+            /* 避免文字换行 */
+            text-overflow: ellipsis;
+            /* 超出部分显示省略号 */
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo"><a href="login.html">蔬菜溯源系统</a><span class="breadcrumb"><a
+                    href="search.html">前往产品溯源</a></span></div>
+        <div class="user" id="userMenu"><span>欢迎您！</span><i></i><a class="name">包装商</a>
+            <ul class="user-dropdown" id="dropdown">
+                <li id="logout">退出登录</li>
+            </ul>
+        </div>
+    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <ul>
+                <!-- <li class="home">系统首页</li> -->
+                <li class="info active">包装信息</li>
+                <!-- <li class="user">个人管理</li> -->
+            </ul>
+        </aside>
+        <section class="main">
+            <div class="main-title">包装商界面</div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>溯源码</th>
+                            <th>蔬菜名称</th>
+                            <th>商品规格</th>
+                            <th>单位</th>
+                            <th>保质期</th>
+                            <th>说明</th>
+                            <th>备注</th>
+                            <th>加工工厂</th>
+                            <th>质检</th>
+                            <th>加工人员</th>
+                            <th>加工时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>编辑包装信息</h3>
+            <label>加工工厂名称：<input type="text" id="factoryName" /></label>
+            <label>质检人员：<input type="text" id="inspector" /></label>
+            <label>加工人员：<input type="text" id="worker" /></label>
+            <label>加工时间：<input type="datetime-local" id="processTime" /></label>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="cancelBtn">取消</button>
+                <button class="btn-confirm" id="confirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const userMenu = document.getElementById('userMenu'), dropdown = document.getElementById('dropdown');
+        document.getElementById('logout').addEventListener('click', () => location.href = 'login.html');
+        userMenu.addEventListener('click', e => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; });
+        document.addEventListener('click', () => dropdown.style.display = 'none');
+        const raw = JSON.parse(localStorage.getItem('packRecords') || '[]');
+        const plants = JSON.parse(localStorage.getItem('plants') || '[]');
+        let records = plants.map(p => ({ ...p, ... (raw.find(r => r.traceCode === p.traceCode) || {}) }));
+        localStorage.setItem('packRecords', JSON.stringify(records));
+        const tbody = document.querySelector('table tbody'); let editIdx = null;
+        function render() {
+            tbody.innerHTML = ''; if (!records.length) return tbody.innerHTML = '<tr class="empty-row"><td colspan="12">暂无数据</td></tr>';
+            records.forEach((r, i) => {
+                const tr = document.createElement('tr'); tr.dataset.index = i;
+                tr.innerHTML = `<td>${r.traceCode}</td><td>${r.category}</td><td>${r.spec}</td><td>${r.unit}</td><td>${r.shelfLife}</td>
+          <td class="description">${r.description}</td><td>${r.remark}</td><td>${r.factoryName || '-'}</td><td>${r.inspector || '-'}</td><td>${r.worker || '-'}</td><td>${r.processTime || '-'}</td>
+          <td><button class="edit-btn">✏️ 编辑</button></td>`;
+                tbody.appendChild(tr);
+            });
+        }
+        function openModal(i) { editIdx = i; const r = records[i];['factoryName', 'inspector', 'worker', 'processTime'].forEach(id => document.getElementById(id).value = r[id] || ''); document.getElementById('editModal').style.display = 'flex'; document.getElementById('editModal').classList.add('show'); }
+        function closeModal() { const m = document.getElementById('editModal'); m.classList.remove('show'); setTimeout(() => m.style.display = 'none', 300); }
+        document.getElementById('cancelBtn').onclick = closeModal;
+        document.getElementById('confirmBtn').onclick = () => { if (editIdx === null) return;['factoryName', 'inspector', 'worker', 'processTime'].forEach(id => records[editIdx][id] = document.getElementById(id).value.trim()); localStorage.setItem('packRecords', JSON.stringify(records)); render(); closeModal(); };
+        tbody.addEventListener('click', e => { const tr = e.target.closest('tr'); if (!tr) return; const i = tr.dataset.index; if (e.target.classList.contains('edit-btn')) openModal(i); });
+        render();
+    </script>
+</body>
+
+</html>

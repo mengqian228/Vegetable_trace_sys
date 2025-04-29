@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>蔬菜溯源系统 — 种植商界面</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --dark-bg: #001529;
+            --light-bg: #f0f2f5;
+            --white: #fff;
+            --primary: #1890ff;
+            --hover: #40a9ff;
+            --text: #333;
+            --text-light: #8c8c8c;
+            --border-radius: 8px;
+            --spacing: 16px;
+            --transition: 0.3s;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --sidebar-width: 220px;
+            --accent: #52c41a;
+            --danger: #ff4d4f;
+            --danger-hover: #cf1322;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--light-bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 56px;
+            padding: 0 var(--spacing);
+            background: var(--dark-bg);
+            color: var(--white);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo a {
+            color: var(--white);
+            text-decoration: none;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .logo .breadcrumb a {
+            margin-left: var(--spacing);
+            color: var(--white);
+            font-size: 0.9rem;
+            opacity: 0.8;
+            transition: opacity var(--transition);
+        }
+
+        .logo .breadcrumb a:hover {
+            opacity: 1;
+        }
+
+        .user {
+            position: relative;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .user span {
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            right: 0;
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            display: none;
+        }
+
+        .user-dropdown li {
+            padding: 12px var(--spacing);
+            font-size: 0.9rem;
+            color: var(--text);
+            transition: background var(--transition);
+        }
+
+        .user-dropdown li:hover {
+            background: var(--light-bg);
+        }
+
+        .container {
+            display: flex;
+            height: calc(100vh - 56px);
+        }
+
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--white);
+            border-right: 1px solid #e8e8e8;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 56px;
+        }
+
+        .sidebar li {
+            padding: 14px var(--spacing);
+            font-size: 0.95rem;
+            color: var(--text-light);
+            cursor: pointer;
+            transition: background var(--transition), color var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar li.active,
+        .sidebar li:hover {
+            background: var(--light-bg);
+            color: var(--primary);
+        }
+
+        .sidebar li.active::before {
+            content: '';
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            margin-right: 8px;
+            border-radius: 2px;
+        }
+
+        .main {
+            flex: 1;
+            padding: calc(var(--spacing) * 2);
+            overflow-y: auto;
+        }
+
+        .main-title {
+            font-family: 'KaiTi', '楷体';
+            font-size: 2rem;
+            text-align: center;
+            margin-bottom: var(--spacing);
+            color: var(--text);
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: var(--spacing);
+        }
+
+        .toolbar button {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 8px 20px;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .toolbar button:hover {
+            background: var(--hover);
+            transform: translateY(-2px);
+        }
+
+        .table-wrapper {
+
+            background: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow-x: auto;
+            /* 添加横向滚动条 */
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 800px;
+            white-space: nowrap;
+            /* 防止换行 */
+        }
+
+        th,
+        td {
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        th {
+            background: #fafafa;
+            color: var(--text-light);
+            position: sticky;
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background: #fafafd;
+        }
+
+        tr:hover {
+            background: #e6f7ff;
+        }
+
+        .empty-row td {
+            text-align: center;
+            color: var(--text-light);
+            font-style: italic;
+            padding: 40px;
+        }
+
+        /* 新增样式：编辑 & 删除 按钮 */
+        .edit-btn,
+        .delete-btn {
+            border: none;
+            padding: 4px 10px;
+            border-radius: var(--border-radius);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background var(--transition), transform var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .edit-btn {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .edit-btn:hover {
+            background: #389e0d;
+            transform: translateY(-1px);
+        }
+
+        .delete-btn {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .delete-btn:hover {
+            background: var(--danger-hover);
+            transform: translateY(-1px);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: calc(var(--spacing) * 2);
+            width: 450px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            transform: scale(0.8);
+            transition: transform var(--transition);
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-content h3 {
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing);
+            color: var(--accent);
+        }
+
+        .modal-content label {
+            display: block;
+            margin-bottom: var(--spacing);
+            font-size: 0.9rem;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 8px;
+            margin-top: 4px;
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius);
+            transition: border-color var(--transition);
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .modal-actions {
+            text-align: right;
+            margin-top: calc(var(--spacing) * 1.5);
+        }
+
+        .modal-actions button {
+            padding: 6px 14px;
+            margin-left: var(--spacing);
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background var(--transition), transform var(--transition);
+        }
+
+        .btn-cancel {
+            background: #f5f5f5;
+            color: var(--text);
+        }
+
+        .btn-confirm {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-confirm:hover {
+            background: #389e0d;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="logo"><a href="login.html">蔬菜溯源系统</a><span class="breadcrumb"><a
+                    href="search.html">前往产品溯源</a></span></div>
+        <div class="user" id="userMenu"><span>欢迎您！</span><i></i><a class="name">种植商</a>
+            <div class="user-dropdown" id="dropdown">
+                <ul>
+                    <li id="logout">退出登录</li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    <div class="container">
+        <aside class="sidebar">
+            <ul>
+                <!-- <li class="home">系统首页</li> -->
+                <li class="info active">种植信息</li>
+                <!-- <li class="user">个人管理</li> -->
+            </ul>
+        </aside>
+        <section class="main">
+            <div class="main-title">种植商界面</div>
+            <div class="toolbar"><button id="addBtn" type="button">添加信息</button></div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>溯源码</th>
+                            <th>蔬菜名称</th>
+                            <th>商品规格</th>
+                            <th>单位</th>
+                            <th>保质期</th>
+                            <th>说明</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+    <div class="modal" id="addModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">添加蔬菜信息</h3>
+            <label>蔬菜名称：<input type="text" id="categoryName" /></label>
+            <label>商品规格：<input type="text" id="spec" /></label>
+            <label>商品单位：<input type="text" id="unit" /></label>
+            <label>保质期：<input type="text" id="shelfLife" /></label>
+            <label>商品说明：<input type="text" id="description" /></label>
+            <label>备注：<input type="text" id="remark" /></label>
+            <div class="modal-actions">
+                <button class="btn-cancel" id="cancelBtn">取消</button>
+                <button class="btn-confirm" id="confirmBtn">确定</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        const userMenu = document.getElementById('userMenu'), dropdown = document.getElementById('dropdown');
+        document.getElementById('logout').onclick = () => location.href = 'login.html';
+        userMenu.onclick = e => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block'; };
+        document.onclick = () => dropdown.style.display = 'none';
+        let plants = JSON.parse(localStorage.getItem('plants') || '[]'), editIndex = null;
+        const tbody = document.querySelector('table tbody');
+        const addModal = document.getElementById('addModal');
+        async function generateTraceCode() { let code = '', chars = 'abcdefghijklmnopqrstuvwxyz0123456789'; for (let i = 0; i < 32; i++) code += chars[Math.floor(Math.random() * chars.length)]; return code; }
+        function renderTable() { tbody.innerHTML = ''; if (!plants.length) { tbody.innerHTML = '<tr class="empty-row"><td colspan="8">暂无数据</td></tr>'; return; } plants.forEach((it, i) => { let tr = document.createElement('tr'); tr.dataset.index = i; tr.innerHTML = `<td>${it.traceCode}</td><td>${it.category}</td><td>${it.spec}</td><td>${it.unit}</td><td>${it.shelfLife}</td><td>${it.description}</td><td>${it.remark}</td><td><button class="edit-btn">✏️ 编辑</button><button class="delete-btn">🗑️ 删除</button></td>`; tbody.appendChild(tr); }); }
+        function openModal(edit = false, i = null) { addModal.style.display = 'flex'; addModal.classList.add('show'); document.getElementById('modalTitle').textContent = edit ? '编辑信息' : '添加信息';['categoryName', 'spec', 'unit', 'shelfLife', 'description', 'remark'].forEach(id => document.getElementById(id).value = ''); if (edit) { let it = plants[i];['categoryName', 'spec', 'unit', 'shelfLife', 'description', 'remark'].forEach((id, j) => document.getElementById(id).value = [it.category, it.spec, it.unit, it.shelfLife, it.description, it.remark][j]); editIndex = i; } }
+        function closeModal() { addModal.classList.remove('show'); setTimeout(() => addModal.style.display = 'none', 300); }
+        document.getElementById('addBtn').onclick = () => openModal(); document.getElementById('cancelBtn').onclick = closeModal;
+        document.getElementById('confirmBtn').onclick = async () => { let data = { category: document.getElementById('categoryName').value.trim(), spec: document.getElementById('spec').value.trim(), unit: document.getElementById('unit').value.trim(), shelfLife: document.getElementById('shelfLife').value.trim(), description: document.getElementById('description').value.trim(), remark: document.getElementById('remark').value.trim() }; if (editIndex !== null) plants[editIndex] = { ...plants[editIndex], ...data }; else { data.traceCode = await generateTraceCode(); plants.push(data); } localStorage.setItem('plants', JSON.stringify(plants)); renderTable(); closeModal(); };
+        tbody.onclick = e => { let tr = e.target.closest('tr'); if (!tr) return; let i = tr.dataset.index; if (e.target.classList.contains('edit-btn')) openModal(true, i); if (e.target.classList.contains('delete-btn')) { plants.splice(i, 1); localStorage.setItem('plants', JSON.stringify(plants)); renderTable(); } };
+        renderTable();
+    </script>
+</body>
+
+</html>
